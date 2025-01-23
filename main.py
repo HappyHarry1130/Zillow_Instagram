@@ -40,7 +40,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://zillow-instagram.vercel.app/"],
+    allow_origins=["http://localhost:3000", "https://zillow-instagram.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

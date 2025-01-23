@@ -29,7 +29,7 @@ function App() {
       if (response.ok) {
         setImage(`${data.image_url}`);
         setImagepath(`.${data.downloadable_url}`)
-        setInstagramImage(`${baseUrl}${data.downloadable_url}`)  
+        setInstagramImage(`http://45.79.156.12:8000${data.downloadable_url}`)  
       } else {
         alert(data.message);  
       }
