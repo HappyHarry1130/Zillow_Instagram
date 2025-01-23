@@ -10,7 +10,7 @@ function App() {
   const [instagramImage , setInstagramImage] = useState(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [imagepath, setImagepath] = useState('')
-  const baseUrl = 'http://45.79.156.12:8000'
+  const baseUrl = 'https://08cc-2600-3c03-00-f03c-91ff-fe6d-9676.ngrok-free.app'
   const handleAddressInput = (e) => {
     setAddress(e.target.value);
   };

@@ -14,8 +14,10 @@ from playwright_stealth import stealth_async
 from bs4 import BeautifulSoup
 import requests
 from instagrapi import Client
+from instagrapi.exceptions import ChallengeRequired, UnknownError
 from dotenv import load_dotenv
 from pydantic import BaseModel
+
 # FastAPI setup
 app = FastAPI()
 COOKIE_FILE = Path("cookies.json")
@@ -216,6 +218,19 @@ if __name__ == "__main__":
     cl = Client()
     username = os.getenv("INSTAGRAM_USERNAME")
     password = os.getenv("INSTAGRAM_PASSWORD")
-    cl.login(username, password)
+
+    try:
+        cl.login(username, password)
+    except ChallengeRequired as e:
+        # Handle the challenge
+        print("A challenge is required. Please check your email for the verification code.")
+        verification_code = input("Enter the verification code: ")
+        
+        # Resolve the challenge
+        try:
+            cl.challenge_resolve(e.challenge, verification_code)
+            cl.login(username, password)  # Retry login after resolving the challenge
+        except UnknownError as ue:
+            print(f"Unknown error occurred: {ue}")
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
