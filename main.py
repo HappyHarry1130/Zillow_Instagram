@@ -40,7 +40,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://zillow-instagram.vercel.app"],
+    allow_origins=["http://localhost:3000", "https://zillow-instagram.vercel.app", "http://45.79.156.12:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -149,16 +149,21 @@ def overlay_text_on_image(image_path, text, y_pos=780, font_size=50, text_color=
     )
     template.paste(new_image_resized, replacement_area)
 
+    if len_text >20:
+        font_size = 35
     draw = ImageDraw.Draw(template)
     try:
-        font = ImageFont.truetype("arial.ttf", font_size)
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", font_size)
     except IOError:
+        print("Font file not found, using default font.")
         font = ImageFont.load_default()
 
     text_bbox = draw.textbbox((0, 0), text, font=font)
-    text_width = text_bbox[2] - text_bbox[0]
+    text_width = (text_bbox[2] - text_bbox[0] ) *1.22
     position = (replacement_area[0] + (replacement_area[2] - replacement_area[0]) // 2 - text_width // 2, y_pos)
-    draw.text(position, text, fill=text_color, font=font)
+    len_text = len(text)
+
+    draw.text(position, text.upper(), fill=text_color, font=font)
 
     if template.mode == 'RGBA':
         template = template.convert('RGB')
@@ -200,8 +205,8 @@ async def scrape_image(address: str):
         return JSONResponse(content={"message": "Internal server error"}, status_code=500)
     
 async def upload_to_instagram(image_path, caption):
-
-    media = cl.photo_upload(image_path, caption)
+    cl= Client()
+    media = cl.photo_upload_to_story(image_path, caption)
     logging.info(f"Uploaded successfully! Media ID: {media.pk}")
 
 @app.post("/upload-image")
@@ -215,22 +220,22 @@ async def upload_image(request: ImageUploadRequest):
         return JSONResponse(content={"message": "Failed to upload image"}, status_code=500)
 
 if __name__ == "__main__":
-    cl = Client()
-    username = os.getenv("INSTAGRAM_USERNAME")
-    password = os.getenv("INSTAGRAM_PASSWORD")
+    # cl = Client()
+    # username = os.getenv("INSTAGRAM_USERNAME")
+    # password = os.getenv("INSTAGRAM_PASSWORD")
 
-    try:
-        cl.login(username, password)
-    except ChallengeRequired as e:
-        # Handle the challenge
-        print("A challenge is required. Please check your email for the verification code.")
-        verification_code = input("Enter the verification code: ")
+    # try:
+    #     cl.login(username, password)
+    # except ChallengeRequired as e:
+    #     # Handle the challenge
+    #     print("A challenge is required. Please check your email for the verification code.")
+    #     verification_code = input("Enter the verification code: ")
         
-        # Resolve the challenge
-        try:
-            cl.challenge_resolve(e.challenge, verification_code)
-            cl.login(username, password)  # Retry login after resolving the challenge
-        except UnknownError as ue:
-            print(f"Unknown error occurred: {ue}")
+    #     # Resolve the challenge
+    #     try:
+    #         cl.challenge_resolve(e.challenge, verification_code)
+    #         cl.login(username, password)  # Retry login after resolving the challenge
+    #     except UnknownError as ue:
+    #         print(f"Unknown error occurred: {ue}")
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

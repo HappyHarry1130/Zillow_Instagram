@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 
 // Placeholder for the chatbot component
-import ChatBot from './components/ChatBot'; // Assume you have a ChatBot component
+import ChatBot from './components/ChatBot'; 
 
 function App() {
   const [address, setAddress] = useState('');
@@ -10,7 +10,7 @@ function App() {
   const [instagramImage , setInstagramImage] = useState(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [imagepath, setImagepath] = useState('')
-  const baseUrl = 'https://08cc-2600-3c03-00-f03c-91ff-fe6d-9676.ngrok-free.app'
+  const baseUrl = 'http://45.79.156.12:8000'
   const handleAddressInput = (e) => {
     setAddress(e.target.value);
   };
@@ -58,7 +58,7 @@ function App() {
 
       const data = await response.json();
       alert("Successfully posted to Instagram.");
-      console.log(data.message); // Handle success message
+      console.log(data.message); 
     } catch (error) {
       alert("Error: " + error.message);
       console.error("Error:", error);
