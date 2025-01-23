@@ -1,0 +1,139 @@
+[
+    {
+        "name": "ANON",
+        "value": "A=786929C2DCE1221AC84F3C85FFFFFFFF&E=1e32&W=1",
+        "domain": ".clarity.ms",
+        "path": "/",
+        "expires": 1730497334,
+        "httpOnly": false,
+        "secure": false,
+        "sameSite": "None"
+    },
+    {
+        "name": "ANON",
+        "value": "A=786929C2DCE1221AC84F3C85FFFFFFFF&E=1e32&W=1",
+        "domain": ".bing.com",
+        "path": "/",
+        "expires": 1730494567,
+        "httpOnly": false,
+        "secure": false,
+        "sameSite": "None"
+    },
+    {
+        "name": "AWSALB",
+        "value": "szshD2dhI1Jm0FC4/luNp8KOUQtoyw1jllQ0cKKtVq1Mugwass1uMFiB3u5wPwlkn1R1kedwh3NKPVpF7bysvqQlyOMD9zf/b9/cACaDsfDv0eHwvFaV4yp3JwBm",
+        "domain": "www.zillow.com",
+        "path": "/",
+        "expires": 1732946497,
+        "httpOnly": false,
+        "secure": true,
+        "sameSite": "None"
+    },
+    {
+        "name": "AWSALBCORS",
+        "value": "szshD2dhI1Jm0FC4/luNp8KOUQtoyw1jllQ0cKKtVq1Mugwass1uMFiB3u5wPwlkn1R1kedwh3NKPVpF7bysvqQlyOMD9zf/b9/cACaDsfDv0eHwvFaV4yp3JwBm",
+        "domain": "www.zillow.com",
+        "path": "/",
+        "expires": 1732946497,
+        "httpOnly": false,
+        "secure": true,
+        "sameSite": "None"
+    },
+    {
+        "name": "DoubleClickSession",
+        "value": "true",
+        "domain": ".zillow.com",
+        "path": "/",
+        "httpOnly": false,
+        "secure": false,
+        "sameSite": "None"
+    },
+    {
+        "name": "JSESSIONID",
+        "value": "E86600B161712177E1037CBDE683CE5E",
+        "domain": "www.zillow.com",
+        "path": "/",
+        "httpOnly": true,
+        "secure": false,
+        "sameSite": "Lax"
+    },
+    {
+        "name": "MSPTC",
+        "value": "oqovxauRgSh2M8ftotfxRMXQQi2p_pI4syEdjfDxA3c",
+        "domain": ".bing.com",
+        "path": "/",
+        "expires": 1759422271,
+        "httpOnly": false,
+        "secure": false,
+        "sameSite": "None"
+    },
+    {
+        "name": "MUID",
+        "value": "2F07442A4301637C08B450C4421362CB",
+        "domain": ".clarity.ms",
+        "path": "/",
+        "expires": 1776485583,
+        "httpOnly": false,
+        "secure": false,
+        "sameSite": "None"
+    },
+    {
+        "name": "MUID",
+        "value": "2F07442A4301637C08B450C4421362CB",
+        "domain": ".bing.com",
+        "path": "/",
+        "expires": 1776485583,
+        "httpOnly": false,
+        "secure": false,
+        "sameSite": "None"
+    },
+    {
+        "name": "ZILLOW_SID",
+        "value": "1|AAAAAVVbFRIBVVsVEkFvEkXCZtRVWuiHB6zt87U6xr0xqL3tlBXoNuMHOplZBnQnQ5CDg3lRYunt5p0uj5Y9LucwbHh9kouC2w",
+        "domain": "www.zillow.com",
+        "path": "/",
+        "httpOnly": true,
+        "secure": false,
+        "sameSite": "Lax"
+    },
+    {
+        "name": "_ga",
+        "value": "GA1.2.474055998.1728279399",
+        "domain": ".zillow.com",
+        "path": "/",
+        "expires": 1895764798,
+        "httpOnly": false,
+        "secure": false,
+        "sameSite": "Lax"
+    },
+    {
+        "name": "_gid",
+        "value": "GA1.2.244500937.1737321314",
+        "domain": ".zillow.com",
+        "path": "/",
+        "expires": 1737580798,
+        "httpOnly": false,
+        "secure": false,
+        "sameSite": "Lax"
+    },
+    {
+        "name": "_fbp",
+        "value": "fb.1.1737321336439.472421290453734780",
+        "domain": ".zillow.com",
+        "path": "/",
+        "expires": 1744918136,
+        "httpOnly": false,
+        "secure": false,
+        "sameSite": "Lax"
+    },
+    {
+        "name": "loginmemento",
+        "value": "1|1cf03515db53c033c22d03ff9258b40905f8012e656e8d2d1a5e9603646401ca",
+        "domain": ".zillow.com",
+        "path": "/",
+        "expires": 2053569285,
+        "httpOnly": true,
+        "secure": false,
+        "sameSite": "Lax"
+    }
+]
