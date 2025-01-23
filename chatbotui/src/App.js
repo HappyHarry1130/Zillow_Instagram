@@ -9,6 +9,7 @@ function App() {
   const [image, setImage] = useState(null);
   const [instagramImage , setInstagramImage] = useState(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [imagepath, setImagepath] = useState('')
   const baseUrl = 'http://45.79.156.12:8000'
   const handleAddressInput = (e) => {
     setAddress(e.target.value);
@@ -27,6 +28,7 @@ function App() {
       console.log(data)
       if (response.ok) {
         setImage(`${data.image_url}`);
+        setImagepath(`.${data.downloadable_url}`)
         setInstagramImage(`${baseUrl}${data.downloadable_url}`)  
       } else {
         alert(data.message);  
@@ -38,7 +40,7 @@ function App() {
   };
 
   const handlePostToInstagram = async () => {
-    const imagePath = `${instagramImage}`; 
+    const imagePath = imagepath; 
     const caption = address; 
 
     try {
@@ -55,8 +57,10 @@ function App() {
       }
 
       const data = await response.json();
+      alert("Successfully posted to Instagram.");
       console.log(data.message); // Handle success message
     } catch (error) {
+      alert("Error: " + error.message);
       console.error("Error:", error);
     }
   };

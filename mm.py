@@ -15,23 +15,24 @@ from bs4 import BeautifulSoup
 import requests
 from instagrapi import Client
 from dotenv import load_dotenv
-# FastAPI setup
+from pydantic import BaseModel
+
 app = FastAPI()
 COOKIE_FILE = Path("cookies.json")
 STATIC_DIR = Path("static")
 load_dotenv()
+
+INSTAGRAM_COOKIE_FILE = Path("instagram_cookies.json")
+
+
 USER_AGENTS = [
-    # Chrome on Windows
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.199 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.5615.49 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.5672.127 Safari/537.36",
-    # Edge on Windows
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.1901.183 Safari/537.36 Edg/115.0.1901.183",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.5672.64 Safari/537.36 Edg/113.0.5672.64",
-    # Older Chrome (to mimic outdated browsers)
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
-    # Opera on Windows
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.1901.183 Safari/537.36 OPR/102.0.4719.43",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 OPR/77.0.4054.172"
 ]
@@ -47,6 +48,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class ImageUploadRequest(BaseModel):
+    image_path: str
+    caption: str
+
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # Ensure static directory exists
@@ -61,12 +66,11 @@ async def fetch_zillow_page(address):
             browser = await p.chromium.launch(headless=True, args=["--no-sandbox", "--disable-gpu"])
             context = await browser.new_context(
                 user_agent=user_agent,                
-                locale="en-US",  # Simulate a US-based user
-                timezone_id="America/New_York",  # Set timezone
+                locale="en-US",  
+                timezone_id="America/New_York", 
                 viewport={"width": 1920, "height": 1080} 
             )
 
-            # Load cookies if available
             if COOKIE_FILE.exists():
                 with COOKIE_FILE.open("r") as f:
                     cookies = json.load(f)
@@ -135,13 +139,13 @@ def validate_image(image_path):
         logging.error(f"Downloaded file is not a valid image: {image_path}")
         return False
 
-# Function to overlay text on image
-def overlay_text_on_image(image_path, text, y_pos=780, font_size=20, text_color=(5, 255, 100)):
+
+def overlay_text_on_image(image_path, text, y_pos=780, font_size=50, text_color=(5, 255, 100)):
     new_image = Image.open(image_path)
-    template = Image.open("1.png")  # Background template
+    template = Image.open("template.png")  
     replacement_area = (113, 190, 980, 730)
 
-    # Resize the image to fit into the template
+ 
     new_image_resized = new_image.resize(
         (replacement_area[2] - replacement_area[0], replacement_area[3] - replacement_area[1])
     )
@@ -153,7 +157,6 @@ def overlay_text_on_image(image_path, text, y_pos=780, font_size=20, text_color=
     except IOError:
         font = ImageFont.load_default()
 
-    # Center the text
     text_bbox = draw.textbbox((0, 0), text, font=font)
     text_width = text_bbox[2] - text_bbox[0]
     position = (replacement_area[0] + (replacement_area[2] - replacement_area[0]) // 2 - text_width // 2, y_pos)
@@ -197,23 +200,62 @@ async def scrape_image(address: str):
     except Exception as e:
         logging.exception(f"Error processing request for address {address}")
         return JSONResponse(content={"message": "Internal server error"}, status_code=500)
-    
-async def upload_to_instagram(image_path, caption):
-    cl = Client()
-    username = os.getenv("INSTAGRAM_USERNAME")
-    password = os.getenv("INSTAGRAM_PASSWORD")
-    cl.login(username, password)
-    media = cl.photo_upload(image_path, caption)
-    logging.info(f"Uploaded successfully! Media ID: {media.pk}")
+
+def load_cookies():
+    if INSTAGRAM_COOKIE_FILE.exists():
+        with open(INSTAGRAM_COOKIE_FILE, "r") as f:
+            cookies = json.load(f)
+        return cookies
+    else:
+        raise FileNotFoundError("Cookies file not found!")
+
+def login_with_custom_cookies():
+    try:
+        cl = Client()
+        
+        # Load cookies
+        cookies = load_cookies()
+        cookie_dict = {cookie["name"]: cookie["value"] for cookie in cookies}
+
+        # Set custom settings with cookies
+        settings = cl.get_settings()
+        settings["cookies"][".instagram.com"] = cookie_dict
+        cl.set_settings(settings)
+
+        # Test session validity
+        cl.get_timeline_feed()
+        print("Logged in successfully using custom cookies!")
+        return cl
+    except Exception as e:
+        print(f"Error using cookies for login: {e}")
+        return None
+
+# async def upload_to_instagram(image_path, caption):
+#     # cl = Client()
+#     cl = login_with_cookies()
+#     # username = os.getenv("INSTAGRAM_USERNAME")
+#     # password = os.getenv("INSTAGRAM_PASSWORD")
+#     # cl.login(username, password)
+#     if cl is None:
+#         return JSONResponse(content={"message": "Failed to login to Instagram"}, status_code=500)
+#     media = cl.photo_upload(image_path, caption)
+#     logging.info(f"Uploaded successfully! Media ID: {media.pk}")
 
 @app.post("/upload-image")
-async def upload_image(image_path: str, caption: str):
+async def upload_image(request: ImageUploadRequest):
     try:
-        await upload_to_instagram(image_path, caption)
+        cl = login_with_custom_cookies()
+        if not cl:
+            return JSONResponse(content={"message": "Failed to login using cookies"}, status_code=500)
+
+        # Upload image to Instagram
+        media = cl.photo_upload(request.image_path, request.caption)
+        logging.info(f"Uploaded successfully! Media ID: {media.pk}")
         return JSONResponse(content={"message": "Image uploaded successfully"}, status_code=200)
     except Exception as e:
         logging.exception("Error uploading image to Instagram")
         return JSONResponse(content={"message": "Failed to upload image"}, status_code=500)
+
 
 if __name__ == "__main__":
     import uvicorn
