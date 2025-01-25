@@ -16,15 +16,11 @@ import requests
 from instagrapi import Client
 from dotenv import load_dotenv
 from pydantic import BaseModel
-
+# FastAPI setup
 app = FastAPI()
 COOKIE_FILE = Path("cookies.json")
 STATIC_DIR = Path("static")
 load_dotenv()
-
-INSTAGRAM_COOKIE_FILE = Path("instagram_cookies.json")
-
-
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.199 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.5615.49 Safari/537.36",
@@ -200,62 +196,24 @@ async def scrape_image(address: str):
     except Exception as e:
         logging.exception(f"Error processing request for address {address}")
         return JSONResponse(content={"message": "Internal server error"}, status_code=500)
-
-def load_cookies():
-    if INSTAGRAM_COOKIE_FILE.exists():
-        with open(INSTAGRAM_COOKIE_FILE, "r") as f:
-            cookies = json.load(f)
-        return cookies
-    else:
-        raise FileNotFoundError("Cookies file not found!")
-
-def login_with_custom_cookies():
-    try:
-        cl = Client()
-        
-        # Load cookies
-        cookies = load_cookies()
-        cookie_dict = {cookie["name"]: cookie["value"] for cookie in cookies}
-
-        # Set custom settings with cookies
-        settings = cl.get_settings()
-        settings["cookies"][".instagram.com"] = cookie_dict
-        cl.set_settings(settings)
-
-        # Test session validity
-        cl.get_timeline_feed()
-        print("Logged in successfully using custom cookies!")
-        return cl
-    except Exception as e:
-        print(f"Error using cookies for login: {e}")
-        return None
-
-# async def upload_to_instagram(image_path, caption):
-#     # cl = Client()
-#     cl = login_with_cookies()
-#     # username = os.getenv("INSTAGRAM_USERNAME")
-#     # password = os.getenv("INSTAGRAM_PASSWORD")
-#     # cl.login(username, password)
-#     if cl is None:
-#         return JSONResponse(content={"message": "Failed to login to Instagram"}, status_code=500)
-#     media = cl.photo_upload(image_path, caption)
-#     logging.info(f"Uploaded successfully! Media ID: {media.pk}")
+    
+async def upload_to_instagram(image_path, caption):
+    cl = Client()
+    username = os.getenv("INSTAGRAM_USERNAME")
+    password = os.getenv("INSTAGRAM_PASSWORD")
+    cl.login(username, password)
+    media = cl.photo_upload(image_path, caption)
+    logging.info(f"Uploaded successfully! Media ID: {media.pk}")
 
 @app.post("/upload-image")
 async def upload_image(request: ImageUploadRequest):
     try:
-        cl = login_with_custom_cookies()
-        if not cl:
-            return JSONResponse(content={"message": "Failed to login using cookies"}, status_code=500)
-
-        # Upload image to Instagram
-        media = cl.photo_upload(request.image_path, request.caption)
-        logging.info(f"Uploaded successfully! Media ID: {media.pk}")
+        print(request.image_path, request.caption)
+        await upload_to_instagram(request.image_path, request.caption)
         return JSONResponse(content={"message": "Image uploaded successfully"}, status_code=200)
     except Exception as e:
         logging.exception("Error uploading image to Instagram")
         return JSONResponse(content={"message": "Failed to upload image"}, status_code=500)
-
 
 if __name__ == "__main__":
     import uvicorn

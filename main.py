@@ -148,7 +148,7 @@ def overlay_text_on_image(image_path, text, y_pos=780, font_size=50, text_color=
         (replacement_area[2] - replacement_area[0], replacement_area[3] - replacement_area[1])
     )
     template.paste(new_image_resized, replacement_area)
-
+    len_text = len(text)
     if len_text >20:
         font_size = 35
     draw = ImageDraw.Draw(template)
@@ -161,7 +161,7 @@ def overlay_text_on_image(image_path, text, y_pos=780, font_size=50, text_color=
     text_bbox = draw.textbbox((0, 0), text, font=font)
     text_width = (text_bbox[2] - text_bbox[0] ) *1.22
     position = (replacement_area[0] + (replacement_area[2] - replacement_area[0]) // 2 - text_width // 2, y_pos)
-    len_text = len(text)
+
 
     draw.text(position, text.upper(), fill=text_color, font=font)
 
@@ -205,7 +205,7 @@ async def scrape_image(address: str):
         return JSONResponse(content={"message": "Internal server error"}, status_code=500)
     
 async def upload_to_instagram(image_path, caption):
-    cl= Client()
+    # cl= Client()
     media = cl.photo_upload_to_story(image_path, caption)
     logging.info(f"Uploaded successfully! Media ID: {media.pk}")
 
@@ -220,22 +220,22 @@ async def upload_image(request: ImageUploadRequest):
         return JSONResponse(content={"message": "Failed to upload image"}, status_code=500)
 
 if __name__ == "__main__":
-    # cl = Client()
-    # username = os.getenv("INSTAGRAM_USERNAME")
-    # password = os.getenv("INSTAGRAM_PASSWORD")
+    cl = Client()
+    username = os.getenv("INSTAGRAM_USERNAME")
+    password = os.getenv("INSTAGRAM_PASSWORD")
 
-    # try:
-    #     cl.login(username, password)
-    # except ChallengeRequired as e:
-    #     # Handle the challenge
-    #     print("A challenge is required. Please check your email for the verification code.")
-    #     verification_code = input("Enter the verification code: ")
+    try:
+        cl.login(username, password)
+    except ChallengeRequired as e:
+        # Handle the challenge
+        print("A challenge is required. Please check your email for the verification code.")
+        verification_code = input("Enter the verification code: ")
         
-    #     # Resolve the challenge
-    #     try:
-    #         cl.challenge_resolve(e.challenge, verification_code)
-    #         cl.login(username, password)  # Retry login after resolving the challenge
-    #     except UnknownError as ue:
-    #         print(f"Unknown error occurred: {ue}")
+        # Resolve the challenge
+        try:
+            cl.challenge_resolve(e.challenge, verification_code)
+            cl.login(username, password)  # Retry login after resolving the challenge
+        except UnknownError as ue:
+            print(f"Unknown error occurred: {ue}")
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
