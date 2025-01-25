@@ -208,7 +208,7 @@ async def upload_to_instagram(image_path, caption):
     # cl= Client()
     media = cl.photo_upload_to_story(image_path, caption)
     logging.info(f"Uploaded successfully! Media ID: {media.pk}")
-s
+
 @app.post("/upload-image")
 async def upload_image(request: ImageUploadRequest):
     try:
